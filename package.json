@@ -1,13 +1,13 @@
 {
   "name": "bmpackr",
-  "version": "1.2.2",
-  "description": "Build bundle and patch file from svn repository.",
+  "version": "1.2.4",
+  "description": "Build bundle and patch file from git repository.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "ypackr": "index.js"
+    "bmpackr": "index.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/zhengguorong/bmpackr.git",
   "license": "MIT",
-  "author": "yusangeng",
+  "author": "zhengguorong",
   "dependencies": {
     "commander": "^2.9.0",
     "copy-dir": "0.0.8",
