@@ -75,7 +75,6 @@ function gitCheckout(outPath, repo, version) {
 	return Git.Clone(repo, outPath).then(function(repository){
 		repository.getCommit(version).then(function(commit){
 			Git.Reset.reset(repository, commit, Git.Reset.TYPE.HARD).then(function(){
-				console.log('reset success')
 			}).catch(function(err){
 				console.log(err)
 			})
@@ -106,7 +105,7 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 		
 		if (!isFile(filename)) return;
 		
-		infolog('Find different file: ' + filename);
+		// infolog('Find different file: ' + filename);
 		
 		var dstFilename = path.join(patchDir, rFilename);
 		var err = cp(filename, dstFilename);
@@ -125,14 +124,16 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 		.option('-c, --current <n>', 'Current version')
 		.option('-l, --last <n>', 'Last version')
 		.option('-r, --repository <string>', 'Repository URL')
+		.option('-s, --subdir <string>', 'Sub Dir')
 		.parse(process.argv);
 
 	var prefix = program.prefix;
 	var current = program.current;
 	var last = program.last;
 	var repo = program.repository;
+	var subdir = program.subdir||''
 
-
+	console.log(subdir)
 	
 	if (!repo || repo === '') {
 		errlog('bad param(s)');
@@ -214,7 +215,7 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 		sectionlog('make bundle...');
 		
 		return new Promise(function (resolve, reject) {
-			makeBundle(currentVersionDir, $(prefix, 'bundle.zip'), function (err) {
+			makeBundle(currentVersionDir + subdir, $(prefix, 'bundle.zip'), function (err) {
 				if (err) {
 					reject(err);
 					return;
@@ -234,7 +235,7 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 				return;
 			}
 
-			makePatch(currentVersionDir, lastVersionDir, $(prefix, 'patch.zip'), function (err) {
+			makePatch(currentVersionDir + subdir, lastVersionDir + subdir, $(prefix, 'patch.zip'), function (err) {
 				if (err) {
 					reject(err);
 					return;
@@ -248,7 +249,7 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 		sectionlog('copy web resouces...');
 		
 		return new Promise(function (resolve, reject) {
-			var err = fs.rename(currentVersionDir, $(prefix, 'web'), function (err) {
+			var err = fs.rename(currentVersionDir + subdir, $(prefix, 'web'), function (err) {
 				if (err) {
 					reject(err);
 				} else {
@@ -284,6 +285,15 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 		return new Promise(function (resolve, reject) {
 			var err = rmrf(lastVersionDir);
 
+			if (subdir) {
+				err = rmrf(currentVersionDir);
+			}
+
+			if (err) {
+				reject(err);
+				return;
+			}
+
 			if (err) {
 				reject(err);
 				return;
@@ -311,7 +321,6 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 					reject();
 					return;
 				}
-
 				rmrf(releasePath);
 				resolve();
 			});
