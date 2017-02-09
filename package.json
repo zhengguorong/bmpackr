@@ -1,0 +1,38 @@
+{
+  "name": "bmpackr",
+  "version": "1.2.2",
+  "description": "Build bundle and patch file from svn repository.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "ypackr": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhengguorong/bmpackr.git"
+  },
+  "keywords": [
+    "nodejs",
+    "update",
+    "patch",
+    "hybrid"
+  ],
+  "bugs": {
+    "url": "https://github.com/zhengguorong/bmpackr/issues"
+  },
+  "homepage": "https://github.com/zhengguorong/bmpackr.git",
+  "license": "MIT",
+  "author": "yusangeng",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "copy-dir": "0.0.8",
+    "dir-compare": "^1.0.1",
+    "node-mkdirs": "0.0.1",
+    "node.svn": "^0.1.8",
+    "promise": "^7.1.1",
+    "zip-folder": "^1.0.0",
+    "nodegit": "^0.17.0"
+  }
+}
