@@ -14,7 +14,6 @@ var mkdirs = require('node-mkdirs');
 var SVN = require('node.svn');
 // var Git = require("nodegit");
 var zip = require('zip-folder');
-var simpleGit = require('simple-git')();
 var diff = require('dir-compare').compareSync;
 
 require('./lib/date.format');
@@ -85,8 +84,11 @@ function checkout(outPath, repo, version, callback) {
 // }
 
 function gitCheckout(outPath, repo, version,callback) {
-	simpleGit.clone(repo, outPath, function() {
-		simpleGit.reset([version],callback)
+	simpleGit = require('simple-git')(outPath)
+	simpleGit.clone(repo, outPath, function(err) {
+		simpleGit.tags(function(err, tags){
+			simpleGit.checkout(version,callback)
+		})
 	})
 }
 
@@ -161,7 +163,7 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 	// 发布目录名
 	var releaseDir = 'bundle_c' + current + '_l' + last + '_release' + releaseTime;
 	// 发布文件名
-	var releaseFilename = releaseDir + '.zip';
+	var releaseFilename = current+ '__'+ last + '.zip';
 	
 	infolog('Release file name: ' + releaseFilename);
 
@@ -195,15 +197,12 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 	new Promise(function (resolve, reject) {
 		// checkout 新版本
 		sectionlog('checkout current version...');
-		// gitCheckout(currentVersionDir, repo, current).then(function(){
-		// 	resolve();
-		// }).catch(function(err){
-		// 	reject(err)
-		// })
-
 		gitCheckout(currentVersionDir, repo, current,function(err) {
-			sectionlog(err)
-			resolve();
+			if(err){
+				reject()
+			}else{
+				resolve();
+			}
 		})
 	}).then(function () {
 		// checkout 老版本
@@ -215,15 +214,13 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 				resolve();
 				return;
 			}
-			
-			// gitCheckout(lastVersionDir, repo, last).then(function(){
-			// 	resolve();
-			// }).catch(function(err){
-			// 	reject(err)
-			// })
 
-		gitCheckout(lastVersionDir, repo, last,function() {
-			resolve();
+		gitCheckout(lastVersionDir, repo, last,function(err) {
+			if(err){
+				reject()
+			}else{
+				resolve();
+			}
 		})
 		});
 	}).then(function () {
