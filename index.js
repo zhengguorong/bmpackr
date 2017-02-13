@@ -12,8 +12,9 @@ var Promise = require('promise');
 var program = require('commander');
 var mkdirs = require('node-mkdirs');
 var SVN = require('node.svn');
-var Git = require("nodegit");
+// var Git = require("nodegit");
 var zip = require('zip-folder');
+var simpleGit = require('simple-git')();
 var diff = require('dir-compare').compareSync;
 
 require('./lib/date.format');
@@ -71,15 +72,21 @@ function checkout(outPath, repo, version, callback) {
 	});
 }
 
-function gitCheckout(outPath, repo, version) {
-	return Git.Clone(repo, outPath).then(function(repository){
-		repository.getCommit(version).then(function(commit){
-			Git.Reset.reset(repository, commit, Git.Reset.TYPE.HARD).then(function(){
-			}).catch(function(err){
-				console.log(err)
-			})
-		})
+// function gitCheckout(outPath, repo, version) {
+// 	return Git.Clone(repo, outPath).then(function(repository){
+// 		repository.getCommit(version).then(function(commit){
+// 			Git.Reset.reset(repository, commit, Git.Reset.TYPE.HARD).then(function(){
+// 			}).catch(function(err){
+// 				console.log(err)
+// 			})
+// 		})
 
+// 	})
+// }
+
+function gitCheckout(outPath, repo, version,callback) {
+	simpleGit.clone(repo, outPath, function() {
+		simpleGit.reset([version],callback)
 	})
 }
 
@@ -188,10 +195,15 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 	new Promise(function (resolve, reject) {
 		// checkout 新版本
 		sectionlog('checkout current version...');
-		gitCheckout(currentVersionDir, repo, current).then(function(){
+		// gitCheckout(currentVersionDir, repo, current).then(function(){
+		// 	resolve();
+		// }).catch(function(err){
+		// 	reject(err)
+		// })
+
+		gitCheckout(currentVersionDir, repo, current,function(err) {
+			sectionlog(err)
 			resolve();
-		}).catch(function(err){
-			reject(err)
 		})
 	}).then(function () {
 		// checkout 老版本
@@ -204,11 +216,15 @@ function makePatch(currentDir, lastDir, zipname, callback) {
 				return;
 			}
 			
-			gitCheckout(lastVersionDir, repo, last).then(function(){
-				resolve();
-			}).catch(function(err){
-				reject(err)
-			})
+			// gitCheckout(lastVersionDir, repo, last).then(function(){
+			// 	resolve();
+			// }).catch(function(err){
+			// 	reject(err)
+			// })
+
+		gitCheckout(lastVersionDir, repo, last,function() {
+			resolve();
+		})
 		});
 	}).then(function () {
 		// 打全量压缩包

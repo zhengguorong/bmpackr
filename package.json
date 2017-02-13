@@ -1,6 +1,6 @@
 {
   "name": "bmpackr",
-  "version": "1.2.4",
+  "version": "1.2.11",
   "description": "Build bundle and patch file from git repository.",
   "main": "index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "node-mkdirs": "0.0.1",
     "node.svn": "^0.1.8",
     "promise": "^7.1.1",
-    "zip-folder": "^1.0.0",
-    "nodegit": "^0.17.0"
+    "simple-git": "^1.65.0",
+    "zip-folder": "^1.0.0"
   }
 }
